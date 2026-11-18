@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { copyText } from "@/lib/clipboard";
 import BingoCard, { type CardCell } from "./BingoCard";
 import MemberList from "./MemberList";
 
@@ -23,6 +24,7 @@ export default function MobView({ mobId }: { mobId: string }) {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [inviteToCopy, setInviteToCopy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const mobRes = await fetch(`/api/mobs/${mobId}`);
@@ -67,9 +69,11 @@ export default function MobView({ mobId }: { mobId: string }) {
   }
 
   async function copyLink() {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    const url = window.location.href;
+    const success = await copyText(url);
+    setInviteToCopy(success ? null : url);
+    setCopied(success);
+    if (success) setTimeout(() => setCopied(false), 1500);
   }
 
   if (state.kind === "loading") return <p className="muted">Loading…</p>;
@@ -101,6 +105,12 @@ export default function MobView({ mobId }: { mobId: string }) {
         <h1>{state.mobName}</h1>
         <button className="secondary" onClick={copyLink}>{copied ? "Copied!" : "Copy invite link"}</button>
       </header>
+      {inviteToCopy && (
+        <div className="panel">
+          <label htmlFor="invite-link" role="alert">Could not copy automatically. Select and copy the invite link:</label>
+          <input id="invite-link" readOnly value={inviteToCopy} onFocus={(e) => e.currentTarget.select()} />
+        </div>
+      )}
       {state.me.bingo && <p className="bingo-banner">🎉 BINGO! 🎉</p>}
       <BingoCard card={state.me.card} winningLine={state.me.winningLine} onToggle={toggle} />
       <MemberList mobId={mobId} self={state.me.name} refreshKey={state.me.card.filter((c) => c.marked).length} />

@@ -42,9 +42,10 @@ describe("mobs", () => {
     await expect(m.getMyCard(other.id, a.token)).rejects.toThrow(m.UnauthorizedError);
   });
 
-  it("members expose marked positions but never square text", async () => {
+  it("members expose marked and rare positions but never square text", async () => {
     const { id } = await m.createMob("Members");
     const { token } = await m.joinMob(id, "Zed");
+    const card = await m.getMyCard(id, token);
     await m.setMark(id, token, 0, true);
     const members = await m.getMembers(id);
     expect(members).toHaveLength(1);
@@ -52,6 +53,9 @@ describe("mobs", () => {
     expect(members[0].grid).toHaveLength(25);
     expect(members[0].grid.filter(Boolean)).toHaveLength(2);
     expect(members[0].grid[0]).toBe(true);
+    expect(members[0].rare).toEqual(card.card.map((square) => square.rarity === "rare"));
+    expect(members[0].rare.filter(Boolean).length).toBeGreaterThan(0);
+    expect(members[0].rare[12]).toBe(false);
     expect(JSON.stringify(members)).not.toMatch(/squares|text|card|rarity|joinedAt/);
   });
 });
