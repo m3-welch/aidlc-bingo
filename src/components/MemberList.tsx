@@ -7,6 +7,7 @@ interface Member {
   marked: number;
   bingo: boolean;
   grid: boolean[];
+  rare: boolean[];
 }
 
 export default function MemberList({ mobId, self, refreshKey }: { mobId: string; self: string; refreshKey: unknown }) {
@@ -32,6 +33,7 @@ export default function MemberList({ mobId, self, refreshKey }: { mobId: string;
   return (
     <section className="panel">
       <h2>Mob members ({members.length})</h2>
+      <p className="muted">Gold outline: rare square</p>
       <ul className="members">
         {members.map((m) => (
           <li key={m.name}>
@@ -39,8 +41,8 @@ export default function MemberList({ mobId, self, refreshKey }: { mobId: string;
               <div>{m.name}{m.name === self ? " (you)" : ""}</div>
               <div className="muted">{m.bingo ? "🎉 BINGO!" : `${m.marked} marked`}</div>
             </div>
-            <div className="mini" aria-label={`${m.name}'s marked squares`}>
-              {m.grid.map((on, i) => <span key={i} className={on ? "on" : ""} />)}
+            <div className="mini" role="img" aria-label={`${m.name}'s board: filled squares are marked, gold outlines indicate rare squares`}>
+              {m.grid.map((on, i) => <span key={i} className={`${on ? "on" : ""} ${m.rare?.[i] ? "rare" : ""}`} />)}
             </div>
           </li>
         ))}

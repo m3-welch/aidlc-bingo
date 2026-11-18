@@ -71,3 +71,7 @@ export const CATALOG: Square[] = [
 ];
 
 export const catalogById = new Map(CATALOG.map((s) => [s.id, s]));
+
+export function rarePositions(squares: string[]): boolean[] {
+  return squares.map((id) => catalogById.get(id)?.rarity === "rare");
+}

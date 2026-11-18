@@ -6,12 +6,13 @@ export interface PlayerRecord {
   joinedAt: number;
 }
 
-/** Public, non-sensitive progress: marked positions only, never square text. */
+/** Public progress and rarity positions, never square text. */
 export interface MemberSummary {
   name: string;
   marked: number;
   bingo: boolean;
   grid: boolean[];
+  rare: boolean[];
   joinedAt: number;
 }
 

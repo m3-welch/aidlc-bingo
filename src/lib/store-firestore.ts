@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { Firestore } from "@google-cloud/firestore";
+import { rarePositions } from "./catalog";
 import type { MemberSummary, PlayerRecord, Store } from "./store";
 
 const MEMBERS_TTL_MS = 2000;
@@ -62,9 +63,31 @@ export class FirestoreStore implements Store {
     const hit = this.cache.get(mobId);
     if (hit && Date.now() - hit.at < MEMBERS_TTL_MS) return hit.value;
     const snap = await this.mob(mobId).get();
-    const members = snap.exists
-      ? Object.values((snap.get("members") ?? {}) as Record<string, MemberSummary>).sort((a, b) => a.joinedAt - b.joinedAt)
-      : null;
+    let members: MemberSummary[] | null = null;
+    if (snap.exists) {
+      type StoredMember = Omit<MemberSummary, "rare"> & { rare?: boolean[] };
+      const entries = Object.entries((snap.get("members") ?? {}) as Record<string, StoredMember>);
+      const missing = entries.filter(([, member]) => !member.rare);
+      if (missing.length) {
+        const players = await this.mob(mobId).collection("players").get();
+        const byName = new Map(players.docs.map((doc) => {
+          const player = doc.data() as PlayerRecord;
+          return [this.memberKey(player.nameKey), player] as const;
+        }));
+        const updates: Record<string, boolean[]> = {};
+        for (const [key, member] of missing) {
+          const player = byName.get(key);
+          if (!player) throw new Error(`Missing player record for member ${key}`);
+          member.rare = rarePositions(player.squares);
+          updates[`members.${key}.rare`] = member.rare;
+        }
+        await this.mob(mobId).update(updates);
+      }
+      members = entries.map(([, member]) => {
+        if (!member.rare) throw new Error("Missing member rarity positions");
+        return { ...member, rare: member.rare };
+      }).sort((a, b) => a.joinedAt - b.joinedAt);
+    }
     this.cache.set(mobId, { at: Date.now(), value: members });
     return members;
   }

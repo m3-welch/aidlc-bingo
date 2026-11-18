@@ -1,7 +1,7 @@
 # aidlc-bingo
 Shared session that produces a bingo card for each person on an AI-DLC mob.
 
-Create a named **mob**, share its link, and everyone who joins (with a name of their choice) gets a private 5x5 bingo card of AI-DLC behaviours (common and rare squares, free center). Mobs are never listed; the link is the only way in. Players see each other's progress live (which squares are marked, plus BINGO status), but never what the squares say.
+Create a named **mob**, share its link, and everyone who joins (with a name of their choice) gets a private 5x5 bingo card of AI-DLC behaviours (common and rare squares, free center). Mobs are never listed; the link is the only way in. Players see each other's progress live (which squares are marked, rare square positions, and BINGO status), but never what the squares say.
 
 ## Develop
 

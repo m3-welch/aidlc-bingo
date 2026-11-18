@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { catalogById } from "./catalog";
+import { catalogById, rarePositions } from "./catalog";
 import { CENTER, FREE, SIZE, countMarked, findWinningLine } from "./bingo";
 import { generateCard } from "./card";
 import { hashToken, newToken } from "./auth";
@@ -27,7 +27,7 @@ export type Member = Omit<MemberSummary, "joinedAt">;
 
 function summarise(p: PlayerRecord): MemberSummary {
   const grid = p.marked.map((v, i) => v || i === CENTER);
-  return { name: p.name, marked: countMarked(grid), bingo: findWinningLine(grid) !== null, grid, joinedAt: p.joinedAt };
+  return { name: p.name, marked: countMarked(grid), bingo: findWinningLine(grid) !== null, grid, rare: rarePositions(p.squares), joinedAt: p.joinedAt };
 }
 
 export async function createMob(name: unknown) {
@@ -95,7 +95,7 @@ export async function setMark(mobId: string, token: string | null, index: unknow
   return toCard(next);
 }
 
-/** Progress only: marked positions are visible to the mob, but never square text. */
+/** Marked and rare positions are visible to the mob, but never square text. */
 export async function getMembers(mobId: string): Promise<Member[]> {
   const members = await (await getStore()).getMembers(mobId);
   if (!members) throw new NotFoundError("Mob not found");
