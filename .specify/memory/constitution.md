@@ -1,50 +1,50 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# AI-DLC Bingo Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Link-Only Privacy
+Mobs MUST NOT be listed, enumerated, or searchable. A mob is reachable only through its
+unguessable share link. Mob identifiers MUST be generated from a cryptographically secure
+random source. Rationale: the link is the only access control, so it must not be guessable.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Hidden Card Contents
+The text and rarity of a player's squares MUST only ever be returned to that player. Other
+players MAY see which positions on that card are marked, plus marked count and BINGO status.
+This MUST be enforced server-side, never by hiding data in the UI. Rationale: prevents peeking
+at what others hold, while keeping the mob's progress visible.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Simplicity (YAGNI)
+No accounts, no admin UI, no external services beyond Firestore. Identity is a name plus a browser-held
+token. Add complexity only when a requirement demands it and the reason is recorded in the plan.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Test the Rules
+Game rules (card generation, free center, win detection, rarity mix) and privacy guarantees
+MUST have automated tests. Tests for these MUST pass before a feature is considered done.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Strict Typing & Input Validation
+All code is TypeScript in strict mode. All user input (mob names, player names, requests)
+MUST be validated and length-limited server-side and rendered escaped.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- Next.js (App Router) with TypeScript, deployed to Cloud Run (scale-to-zero) from GitHub Actions.
+- Persistence behind a `Store` interface: Firestore in production, in-memory for dev/tests. No
+  state may live only in instance memory in production (instances are ephemeral).
+- Real-time updates via short client polling of a single document (keeps Firestore reads in the free tier).
+- Cost MUST stay at free-tier levels for small usage.
+- The bingo square catalog (common and rare AI-DLC behaviours) lives in a single data file
+  so that content can be edited without touching game logic.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Work follows Spec Kit: specify → plan → tasks → implement, with artifacts in `specs/`.
+- Changes MUST pass lint, type-check, and tests before merge.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes other practices. Amendments require a documented change to this
+file with a version bump (MAJOR: principle removal/redefinition; MINOR: new principle or
+material expansion; PATCH: clarifications). Plans MUST include a Constitution Check against
+these principles, and reviews MUST verify compliance.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.2.0 | **Ratified**: 2026-11-18 | **Last Amended**: 2026-11-18
